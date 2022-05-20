@@ -5,6 +5,7 @@
 
   $_TITRE_PAGE = 'Accueil projet RS ESEO';
 
+  
 
   if(isset($_GET['logout'])){
     if($_GET['logout'] == 1) {
