@@ -1,0 +1,117 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat');
+
+/* general */
+*{
+  font-family: 'Montserrat';
+}
+
+body{ 
+  display:flex; 
+  flex-direction:column; 
+}
+
+/* header */
+header{  
+  background: #22c1c3; /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #22c1c3, #fdbb2d); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #22c1c3, #fdbb2d); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  background-size: 200% 100%;
+
+  -webkit-animation: rainbowOut 0.5s forwards ;
+	animation: rainbowOut 0.5s forwards ;
+}
+
+header:hover{  
+	-webkit-animation: rainbow 0.5s forwards linear;
+	animation: rainbow 0.5s forwards linear;
+}
+
+@-webkit-keyframes rainbowOut {
+  0%{background-position:100% 0%}
+  100%{background-position:0% 0%}
+}
+@keyframes rainbowOut {
+  0%{background-position:100% 0%}
+  100%{background-position:0% 0%}
+}
+
+@-webkit-keyframes rainbow {
+  0%{background-position:0% 0%}
+  100%{background-position:100% 0%}
+}
+@keyframes rainbow { 
+  0%{background-position:0% 0%}
+  100%{background-position:100% 0%}
+}
+
+.logo-header{
+  padding-right: 1em;
+  height: 50px;
+}
+
+.btn-header:active{
+  background-color : #22c1c3;
+}
+
+section {
+  min-width:400px;
+}
+
+/* connexion div */
+#connexion_div{
+  background-color: #2fbcbf;
+}
+
+.btn-connexion{
+  background-color: #29aaac;
+}
+
+.btn-connexion:active{
+  background-color: #2fbcbf;
+}
+
+.forgot-password{
+  display: flex;
+}
+
+.logo-key{
+  width : 20px;
+  opacity: 0.6;
+}
+
+a {
+  text-decoration: none;
+  color:rgb(96, 95, 95);
+}
+
+a:hover{
+  color:rgb(96, 95, 95);
+}
+
+/* inscription div */
+#inscription_div{
+  background-color: #f6c864;
+}
+
+.btn-inscription{
+  background-color: #dba227;
+}
+
+.btn-inscription:active{
+  background-color: #f6c864;
+}
+
+/* Footer */
+footer{
+  margin-top:65px;
+}
+
+.footer{
+  background-color: rgb(68, 68, 68);
+  position: relative;
+  width: 100%;
+  bottom: 0px;
+  vertical-align: center;
+  z-index: 5;
+  min-width:400px;
+}
