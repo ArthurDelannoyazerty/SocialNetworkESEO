@@ -1,9 +1,13 @@
 <?php
     
     function sendQuery($sql, $mysqli){
-        $result = $mysqli->query($sql);
+        $result = mysqli_query($mysqli, $sql);
+
         if (!$result) {
             exit($mysqli->error);
+        }
+        else{
+            return $result;
         }
     }
 

@@ -1,32 +1,61 @@
 <?php
-
+  session_start();
   $mysqli = include 'databaseConnect.php';
   include 'databaseUtils.php';
 
   $_TITRE_PAGE = 'Accueil projet RS ESEO';
 
-  
-
+  // buton quit session
   if(isset($_GET['logout'])){
     if($_GET['logout'] == 1) {
       unset($_SESSION['compte']);
+      unset($_POST);
       header("Location: ./");
     }
   }
 
+  $_SESSION['compte'] = "not connected";
 
-  //is connected ?
-  $compte = "not connected";
+  // Can the user be connected ?
+  $error_connexion=false;
   if(isset($_POST['connexion_submit']) && $_POST['connexion_submit'] == 1){
-    if($_POST['password'] == 'network'){
-      $compte = "connected";
+      if(isset($_POST['mail']) && isset($_POST['password'])){
+      
+      $mail = againstSQLInjection($_POST['mail'],$mysqli);
+
+      $mail = addslashes($mail);
+      
+      $sql = "SELECT * FROM account_data WHERE mail='$mail'";
+      $result = sendQuery($sql, $mysqli);
+
+
+      if ($result->num_rows > 0) { // si on trouve le compte
+				$row = $result->fetch_assoc();
+				// $mdp = $row['password'];
+				foreach($result as $row) {
+          print_r($row);
+          // do something with each row
+      }
+				$isPasswordCorrect = password_verify($_POST['password'], $row['password']);
+        if($isPasswordCorrect){
+           $_SESSION['compte']="connected";
+           $_SESSION['primaire']=$row['primaire'];
+           $_SESSION['name']=$row['name'];
+           $_SESSION['first-name']=$row['first_name'];
+           $_SESSION['year']=$row['year'];
+        }
+        else{
+          $error_connexion=true;
+        }
+      }
     }
   }
 
+  // inscription du compte
+  $inscripton_done=false;
   if(isset($_POST['inscription_submit']) && $_POST['inscription_submit'] == 1){
-    $compte="connected";
     if(isset($_POST['mail']) && isset($_POST['password']) && isset($_POST['name']) && isset($_POST['first_name']) && $_POST['year']!="Annee Scolaire" && $_POST['password_confirmation']==$_POST['password']){
-      
+
       $mail = againstSQLInjection($_POST['mail'],$mysqli);
       $mdphash = password_hash(againstSQLInjection($_POST['password'],$mysqli), PASSWORD_DEFAULT);
       $name = againstSQLInjection($_POST['name'],$mysqli);
@@ -38,14 +67,17 @@
       $name = addslashes($name);
       $first_name = addslashes($first_name);
       $year = addslashes($year);
-  
-  
-      $sql = "INSERT INTO data(mail,password,name,first_name,year) 
-                          VALUES('$mail', '$mdphash', '$name', '$first_name', $year)";
-      echo $sql;
 
-      sendQuery($sql, $mysqli);
-    } 
+      $sql = "INSERT INTO account_data(mail,password,name,first_name,year) 
+                          VALUES('$mail', '$mdphash', '$name', '$first_name', '$year')";
+
+      $result = sendQuery($sql, $mysqli);
+      if($result){
+        $_SESSION['compte']="not connected";
+        $inscripton_done=true;
+      }
+    }
+
   }
 ?>
 
@@ -76,18 +108,41 @@
                 <h2>Bienvenue sur RS ESEO !</h2>
             </div>
             <?php
-              if($_SESSION['compte']="not connected"){
+              if(strcmp($_SESSION['compte'],"not connected")==0){
             ?>
+            <div>
+              <?php
+                if(isset($_POST['connexion_submit']) && $_POST['connexion_submit'] == 1){
+                  if(!(isset($_POST['mail']) && isset($_POST['password']))){
+                    echo "<p style='text-align:left;'> Veuillez remplir tous les champs du formulaire. </p>";
+                  }
+                }
+                if(isset($_POST['connexion_submit']) && $_POST['connexion_submit'] == 1){
+                  if(isset($_POST['mail']) && isset($_POST['password']) && $error_connexion){
+                    echo "<p style='text-align:left;'> Erreur : mauvais identifiants </p>";
+                  }
+                }
+                if(isset($_POST['inscription_submit']) && $_POST['inscription_submit'] == 1){
+                  if(!(isset($_POST['mail']) && isset($_POST['password']) && isset($_POST['name']) && isset($_POST['first_name']) && $_POST['year']!="Annee Scolaire" && $_POST['password_confirmation']==$_POST['password'])){
+                    echo "<p style='text-align:right;'>Veuillez remplir tous les champs du formulaire. </p>";
+                  }
+                }
+                if(isset($_POST['inscription_submit']) && $_POST['inscription_submit'] == 1){
+                  if($inscripton_done){
+                    echo "<p style='text-align:right;'>Inscription effectuée, Connectez-vous. </p>";
+                  }
+                }
+                
+              ?>
+            </div>
             <div class="rounded-3 col-sm-4 m-2 p-1 h-50" id="connexion_div">
                 <h5 class="text-center text-white">Connexion</h5>
                 <form method="POST">
                     <div class="input-group p-2">
-                      <!-- <label for="mail">Email</label> -->
                       <input name="mail" type="text" class="form-control" placeholder="Email" id="mail">
                     </div>
                   
                     <div class="input-group p-2">
-                      <!-- <label for="defaultLoginFormPassword">Mot de passe</label> -->
                       <input name="password" type="password" class="form-control" placeholder="Mot de passe" id="defaultLoginFormPassword">
                     </div>
 
@@ -147,10 +202,14 @@
             
               <?php
                 }
-                else{
+                if(strcmp($_SESSION['compte'],"connected")==0){
+                  header( "refresh:5;url=monprofil.php" );
               ?>
               <div>
                 <h2>Vous êtes connecté !</h2>
+              </div>
+              <div>
+                <h4>Vous allez être redirigé vers votre espace personnel</h4>
               </div>
               <div>
                 <a href="http://192.168.56.80/pwnd?logout=1">Se déconnecter</a>
